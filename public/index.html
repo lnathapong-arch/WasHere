@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WasHere</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0c2f5f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WasHere">
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#f3f1ec;--card:#fff;--ink:#1c2321;--mute:#66706c;--line:#dedbd3;--brand:#d9482f;--brand2:#b93a24;--warn:#b45309;--danger:#b91c1c}
+@media(prefers-color-scheme:dark){:root{--bg:#121816;--card:#1b2320;--ink:#eef2f0;--mute:#9aa6a1;--line:#2c3733;--brand:#ff8a70;--brand2:#ff6f50;--warn:#fbbf24;--danger:#f87171}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{font-family:'IBM Plex Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+main{flex:1;overflow:hidden;position:relative}
+.view{position:absolute;inset:0;overflow-y:auto;padding:16px;display:none}
+.view.on{display:block}
+#v-map{padding:0}
+#map{position:absolute;inset:0}
+nav{display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:12px 0 10px;border:0;background:none;color:var(--mute);font:600 13px inherit;font-family:inherit}
+nav button.on{color:var(--brand)}
+nav svg{display:block;margin:0 auto 3px;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+h1{font-size:22px;margin:4px 0 2px}
+.sub{color:var(--mute);font-size:14px;margin:0}
+.hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100% - 70px);gap:22px;text-align:center}
+#go{width:min(68vw,270px);aspect-ratio:1;border-radius:50%;border:0;background:var(--brand);color:#fff;font:700 24px inherit;font-family:inherit;box-shadow:0 0 0 12px color-mix(in srgb,var(--brand) 18%,transparent),0 0 0 26px color-mix(in srgb,var(--brand) 8%,transparent);transition:transform .12s}
+#go:active{transform:scale(.95)}
+#go[disabled]{opacity:.7}
+#go svg{width:54px;height:54px;display:block;margin:0 auto 6px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.last{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;width:100%;max-width:360px;text-align:left}
+.banner{background:color-mix(in srgb,var(--warn) 16%,var(--card));border:1px solid var(--warn);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:12px;display:none}
+.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.bar select,.bar input{font:14px inherit;font-family:inherit;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);flex:1;min-width:110px}
+.item{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--c,#999);border-radius:10px;padding:12px;margin-bottom:10px}
+.item .t{font-size:13px;color:var(--mute)}
+.item .a{font-weight:600;margin:3px 0}
+.item .c{font:13px ui-monospace,Menlo,monospace;color:var(--mute)}
+.item img{width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:8px}
+.acts{display:flex;gap:8px;margin-top:10px}
+.btn{font:600 14px inherit;font-family:inherit;border:1px solid var(--line);background:none;color:var(--ink);padding:8px 12px;border-radius:9px}
+.btn.p{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.d{color:var(--danger)}
+.empty{text-align:center;color:var(--mute);padding:40px 10px}
+#loc{position:absolute;right:12px;bottom:16px;z-index:500;width:48px;height:48px;border-radius:50%;border:0;background:var(--card);box-shadow:0 2px 8px #0004;color:var(--brand)}
+#loc svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2}
+#toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:2000;max-width:90vw;display:flex;gap:12px;align-items:center}
+#toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#toast button{background:none;border:0;color:var(--brand);font:700 14px inherit;font-family:inherit}
+dialog{border:0;border-radius:16px;padding:18px;width:min(92vw,420px);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:#0008}
+dialog label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+dialog textarea,dialog select{width:100%;font:15px inherit;font-family:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.leaflet-container{font-family:inherit}
+</style>
+</head>
+<body>
+<main>
+  <section class="view on" id="v-home">
+    <div class="banner" id="gpsBanner"></div>
+    <div class="hero">
+      <div><h1>WasHere</h1><p class="sub" id="status">แตะปุ่มเพื่อบันทึกตำแหน่งปัจจุบัน</p></div>
+      <button id="go" aria-label="บันทึกตำแหน่ง"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>บันทึกตำแหน่ง</button>
+      <div class="last" id="last" style="display:none"></div>
+    </div>
+  </section>
+  <section class="view" id="v-hist">
+    <h1>ประวัติ</h1>
+    <div class="bar">
+      <input id="q" type="search" placeholder="ค้นหาโน้ตหรือสถานที่">
+      <select id="fd"><option value="all">ทุกวัน</option><option value="today">วันนี้</option><option value="week">7 วันล่าสุด</option></select>
+      <select id="ft"></select>
+    </div>
+    <div id="list"></div>
+    <div class="bar"><button class="btn" data-x="csv">CSV</button><button class="btn" data-x="kml">KML</button><button class="btn" data-x="gpx">GPX</button></div>
+  </section>
+  <section class="view" id="v-map"><div id="map"></div>
+    <button id="loc" aria-label="ไปตำแหน่งปัจจุบัน"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
+  </section>
+</main>
+<nav>
+  <button data-v="home" class="on"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>บันทึก</button>
+  <button data-v="hist"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>ประวัติ</button>
+  <button data-v="map"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>แผนที่</button>
+</nav>
+<div id="toast"><span id="tmsg"></span><button id="tact" hidden></button></div>
+
+<dialog id="dlg"><form method="dialog" id="ef">
+  <h1 style="font-size:18px">แก้ไขรายการ</h1>
+  <label for="en">โน้ต</label><textarea id="en" rows="3" placeholder="เช่น จอดรถชั้น 3"></textarea>
+  <label for="et">หมวดหมู่</label><select id="et"></select>
+  <label for="ep">รูปถ่าย</label><input id="ep" type="file" accept="image/*" capture="environment">
+  <div class="acts" style="justify-content:flex-end;margin-top:16px"><button class="btn" value="cancel">ยกเลิก</button><button class="btn p" id="esave" value="ok">บันทึก</button></div>
+</form></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ===== Config ===== */
+// ใส่ URL ของ Backend (Supabase Edge Function / Firebase Function) เพื่อซิงค์ขึ้น Cloud เมื่อออนไลน์
+const SYNC_URL = '';
+const TAGS = {work:['งาน','#2563eb'],travel:['ท่องเที่ยว','#16a34a'],food:['ร้านอาหาร','#ea580c'],other:['อื่นๆ','#7c3aed']};
+
+/* ===== Helpers ===== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=t=>new Date(t).toLocaleString('th-TH',{dateStyle:'medium',timeStyle:'short'});
+let tt; function toast(msg,act,fn){$('#tmsg').textContent=msg;const b=$('#tact');b.hidden=!act;if(act){b.textContent=act;b.onclick=()=>{fn();$('#toast').classList.remove('on')}}
+  $('#toast').classList.add('on');clearTimeout(tt);tt=setTimeout(()=>$('#toast').classList.remove('on'),act?5000:2500)}
+
+/* ===== IndexedDB (offline-first) ===== */
+let db;
+const openDB=()=>new Promise((ok,no)=>{const r=indexedDB.open("washere",1);r.onupgradeneeded=()=>r.result.createObjectStore('p',{keyPath:'id'});r.onsuccess=()=>{db=r.result;ok()};r.onerror=()=>no(r.error)});
+const tx=(m,f)=>new Promise((ok,no)=>{const t=db.transaction('p',m),o=f(t.objectStore('p'));t.oncomplete=()=>ok(o.result);t.onerror=()=>no(t.error)});
+const getAll=async()=>(await tx('readonly',s=>s.getAll())).sort((a,b)=>b.ts-a.ts);
+const put=r=>tx('readwrite',s=>s.put(r)), del=id=>tx('readwrite',s=>s.delete(id));
+
+/* ===== Geolocation ===== */
+const getPos=()=>new Promise((ok,no)=>{
+  if(!navigator.geolocation)return no({code:0});
+  navigator.geolocation.getCurrentPosition(ok,no,{enableHighAccuracy:true,timeout:15000,maximumAge:0})});
+function gpsError(e){
+  const m={0:'อุปกรณ์นี้ไม่รองรับ GPS',1:'ไม่ได้รับอนุญาตเข้าถึงตำแหน่ง — เปิดสิทธิ์ Location ในการตั้งค่าเบราว์เซอร์/แอปแล้วลองอีกครั้ง',
+    2:'หาตำแหน่งไม่ได้ — ตรวจสอบว่าเปิด GPS (บริการตำแหน่ง) อยู่',3:'GPS ใช้เวลานานเกินไป — ลองออกไปที่โล่งแล้วกดใหม่'};
+  const b=$('#gpsBanner');b.textContent=m[e.code]||'เกิดข้อผิดพลาดในการอ่านตำแหน่ง';b.style.display='block'}
+
+async function checkin(){
+  const btn=$('#go');btn.disabled=true;$('#status').textContent='กำลังค้นหาสัญญาณ GPS…';
+  try{
+    const p=await getPos();$('#gpsBanner').style.display='none';
+    const r={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),ts:p.timestamp||Date.now(),lat:p.coords.latitude,lng:p.coords.longitude,
+      acc:Math.round(p.coords.accuracy),note:'',tag:'other',photo:'',addr:'',synced:false};
+    await put(r);
+    if(navigator.vibrate)navigator.vibrate(40);
+    toast('บันทึกตำแหน่งเรียบร้อยแล้ว','เพิ่มโน้ต',()=>edit(r.id));
+    showLast(r);render();geocode(r);sync();
+    $('#status').textContent='แตะอีกครั้งเพื่อบันทึกจุดใหม่';
+  }catch(e){gpsError(e);$('#status').textContent='บันทึกไม่สำเร็จ'}
+  btn.disabled=false}
+function showLast(r){const l=$('#last');l.style.display='block';
+  l.innerHTML=`<b>บันทึกล่าสุด</b><br>${fmt(r.ts)}<br><span style="font-family:ui-monospace,monospace">${r.lat.toFixed(6)}, ${r.lng.toFixed(6)}</span> (±${r.acc} ม.)`}
+
+/* ===== Reverse geocoding (Nominatim / OSM) ===== */
+async function geocode(r){
+  if(!navigator.onLine||r.addr)return;
+  try{const j=await(await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=th&lat=${r.lat}&lon=${r.lng}`)).json();
+    r.addr=j.display_name||'';if(r.addr){await put(r);render();}}catch(e){}}
+async function geocodePending(){for(const r of await getAll()){if(!r.addr){await geocode(r);await new Promise(s=>setTimeout(s,1100))}}}
+
+/* ===== Cloud sync hook ===== */
+async function sync(){
+  if(!SYNC_URL||!navigator.onLine)return;
+  const pend=(await getAll()).filter(r=>!r.synced);if(!pend.length)return;
+  try{const res=await fetch(SYNC_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pend)});
+    if(res.ok)for(const r of pend){r.synced=true;await put(r)}}catch(e){}}
+
+/* ===== History ===== */
+function filtered(all){
+  const q=$('#q').value.trim().toLowerCase(),d=$('#fd').value,t=$('#ft').value,now=Date.now();
+  const start=new Date();start.setHours(0,0,0,0);
+  return all.filter(r=>(t==='all'||r.tag===t)&&
+    (d==='all'||(d==='today'&&r.ts>=start.getTime())||(d==='week'&&r.ts>=now-7*864e5))&&
+    (!q||(r.note+' '+r.addr).toLowerCase().includes(q)))}
+async function render(){
+  const all=await getAll(),rows=filtered(all);
+  $('#list').innerHTML=rows.length?rows.map(r=>`<article class="item" style="--c:${TAGS[r.tag][1]}">
+    <div class="t">${fmt(r.ts)} <span class="pill" style="background:${TAGS[r.tag][1]}">${TAGS[r.tag][0]}</span>${r.synced?'':' · รอซิงค์'}</div>
+    <div class="a">${esc(r.addr)||'ยังไม่มีชื่อสถานที่ (จะดึงอัตโนมัติเมื่อออนไลน์)'}</div>
+    <div class="c">${r.lat.toFixed(6)}, ${r.lng.toFixed(6)} · ±${r.acc} ม.</div>
+    ${r.note?`<div style="margin-top:6px">${esc(r.note)}</div>`:''}
+    ${r.photo?`<img src="${r.photo}" alt="รูปถ่าย">`:''}
+    <div class="acts"><a class="btn p" style="text-decoration:none" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}">นำทาง</a>
+    <button class="btn" data-e="${r.id}">แก้ไข</button><button class="btn d" data-d="${r.id}">ลบ</button></div></article>`).join('')
+    :'<div class="empty">ยังไม่มีรายการ — กลับไปแท็บ “บันทึก” แล้วแตะปุ่มใหญ่ได้เลย</div>';
+  if(map)drawMarkers(all)}
+$('#list').onclick=async e=>{
+  const E=e.target.closest('[data-e]'),D=e.target.closest('[data-d]');
+  if(E)edit(E.dataset.e);
+  if(D&&confirm('ลบรายการนี้?')){await del(D.dataset.d);render()}};
+['#q','#fd','#ft'].forEach(s=>$(s).addEventListener('input',render));
+$('#ft').innerHTML='<option value="all">ทุกหมวด</option>'+Object.entries(TAGS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('');
+$('#et').innerHTML=Object.entries(TAGS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('');
+
+/* ===== Edit dialog ===== */
+let editing=null;
+async function edit(id){editing=(await getAll()).find(r=>r.id===id);if(!editing)return;
+  $('#en').value=editing.note;$('#et').value=editing.tag;$('#ep').value='';$('#dlg').showModal()}
+const shrink=f=>new Promise(ok=>{const i=new Image();i.onload=()=>{const s=Math.min(1,900/Math.max(i.width,i.height)),c=document.createElement('canvas');
+  c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.7))};i.src=URL.createObjectURL(f)});
+$('#ef').onsubmit=async e=>{
+  if(e.submitter?.value!=='ok'||!editing)return;
+  editing.note=$('#en').value.trim();editing.tag=$('#et').value;editing.synced=false;
+  const f=$('#ep').files[0];if(f)editing.photo=await shrink(f);
+  await put(editing);render();toast('แก้ไขเรียบร้อยแล้ว');sync()};
+
+/* ===== Map (Leaflet + OpenStreetMap) ===== */
+let map,layer,me;
+function initMap(){
+  if(map)return;
+  map=L.map('map',{zoomControl:false}).setView([13.7563,100.5018],12);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  layer=L.layerGroup().addTo(map);render()}
+async function drawMarkers(all){
+  layer.clearLayers();const pts=[];
+  all.forEach(r=>{pts.push([r.lat,r.lng]);
+    L.circleMarker([r.lat,r.lng],{radius:10,color:'#fff',weight:2,fillColor:TAGS[r.tag][1],fillOpacity:1}).addTo(layer)
+     .bindPopup(`<b>${fmt(r.ts)}</b><br>${esc(r.note)||'<i>ไม่มีโน้ต</i>'}<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}">นำทาง</a>`)});
+  if(pts.length&&!map._fitted){map.fitBounds(pts,{padding:[40,40],maxZoom:16});map._fitted=1}}
+$('#loc').onclick=async()=>{try{const p=await getPos(),ll=[p.coords.latitude,p.coords.longitude];
+  if(me)me.remove();me=L.circle(ll,{radius:p.coords.accuracy,color:'#2563eb',fillOpacity:.15}).addTo(map);
+  L.circleMarker(ll,{radius:7,color:'#fff',weight:2,fillColor:'#2563eb',fillOpacity:1}).addTo(me._map?map:map);
+  map.setView(ll,17)}catch(e){gpsError(e);toast('อ่านตำแหน่งไม่ได้ — ตรวจสอบสิทธิ์และ GPS')}};
+
+/* ===== Export ===== */
+function dl(name,type,txt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type}));a.download=name;a.click()}
+const xe=s=>esc(s);
+document.addEventListener('click',async e=>{const x=e.target.dataset?.x;if(!x)return;
+  const rows=filtered(await getAll());if(!rows.length)return toast('ไม่มีข้อมูลให้ส่งออก');
+  if(x==='csv')dl('checkins.csv','text/csv','\ufeff'+['เวลา,lat,lng,ความแม่นยำ(ม.),หมวด,โน้ต,ที่อยู่'].concat(rows.map(r=>
+    [new Date(r.ts).toISOString(),r.lat,r.lng,r.acc,TAGS[r.tag][0],r.note,r.addr].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))).join('\n'));
+  if(x==='kml')dl('checkins.kml','application/vnd.google-earth.kml+xml',`<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document>${rows.map(r=>
+    `<Placemark><name>${xe(fmt(r.ts))}</name><description>${xe(r.note)}</description><TimeStamp><when>${new Date(r.ts).toISOString()}</when></TimeStamp><Point><coordinates>${r.lng},${r.lat},0</coordinates></Point></Placemark>`).join('')}</Document></kml>`);
+  if(x==='gpx')dl('checkins.gpx','application/gpx+xml',`<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1" creator="checkin" xmlns="http://www.topografix.com/GPX/1/1">${rows.map(r=>
+    `<wpt lat="${r.lat}" lon="${r.lng}"><time>${new Date(r.ts).toISOString()}</time><name>${xe(fmt(r.ts))}</name><desc>${xe(r.note)}</desc></wpt>`).join('')}</gpx>`)});
+
+/* ===== Navigation / boot ===== */
+$$('nav button').forEach(b=>b.onclick=()=>{
+  $$('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  $$('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));
+  if(b.dataset.v==='map'){initMap();setTimeout(()=>map.invalidateSize(),50)}
+  if(b.dataset.v==='hist')render()});
+$('#go').onclick=checkin;
+addEventListener('online',()=>{sync();geocodePending()});
+(async()=>{
+  await openDB();const all=await getAll();if(all[0])showLast(all[0]);render();
+  if(navigator.permissions)try{const s=await navigator.permissions.query({name:'geolocation'});
+    const chk=()=>{if(s.state==='denied')gpsError({code:1})};chk();s.onchange=chk}catch(e){}
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(navigator.onLine){sync();geocodePending()}
+})();
+</script>
+</body>
+</html>

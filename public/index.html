@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>WasHere</title>
+<script>try{var t=JSON.parse(localStorage.getItem("wh_theme"));if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0c2f5f">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,8 +15,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&display=swap">
 <style>
-:root{--bg:#f3f1ec;--card:#fff;--ink:#1c2321;--mute:#66706c;--line:#dedbd3;--brand:#d9482f;--brand2:#b93a24;--warn:#b45309;--danger:#b91c1c}
-@media(prefers-color-scheme:dark){:root{--bg:#121816;--card:#1b2320;--ink:#eef2f0;--mute:#9aa6a1;--line:#2c3733;--brand:#ff8a70;--brand2:#ff6f50;--warn:#fbbf24;--danger:#f87171}}
+:root{--bg:#f3f1ec;--card:#fff;--ink:#1c2321;--mute:#66706c;--line:#dedbd3;--brand:#d9482f;--brand2:#b93a24;--warn:#b45309;--danger:#b91c1c;--onb:#fff}
+@media(prefers-color-scheme:dark){:root{--bg:#121816;--card:#1b2320;--ink:#eef2f0;--mute:#9aa6a1;--line:#2c3733;--brand:#ff8a70;--brand2:#ff6f50;--warn:#fbbf24;--danger:#f87171;--onb:#2a0e08}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;margin:0}
 body{font-family:'IBM Plex Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
@@ -31,10 +32,10 @@ nav svg{display:block;margin:0 auto 3px;width:24px;height:24px;fill:none;stroke:
 h1{font-size:22px;margin:4px 0 2px}
 .sub{color:var(--mute);font-size:14px;margin:0}
 .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100% - 70px);gap:22px;text-align:center}
-#go{width:min(68vw,270px);aspect-ratio:1;border-radius:50%;border:0;background:var(--brand);color:#fff;font:700 24px inherit;font-family:inherit;box-shadow:0 0 0 12px color-mix(in srgb,var(--brand) 18%,transparent),0 0 0 26px color-mix(in srgb,var(--brand) 8%,transparent);transition:transform .12s}
+#go{width:min(68vw,270px);aspect-ratio:1;border-radius:50%;border:0;background:var(--brand);color:var(--onb);font:700 24px inherit;font-family:inherit;box-shadow:0 0 0 12px color-mix(in srgb,var(--brand) 18%,transparent),0 0 0 26px color-mix(in srgb,var(--brand) 8%,transparent);transition:transform .12s}
 #go:active{transform:scale(.95)}
 #go[disabled]{opacity:.7}
-#go svg{width:54px;height:54px;display:block;margin:0 auto 6px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#go svg{width:54px;height:54px;display:block;margin:0 auto 6px;fill:none;stroke:var(--onb);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .last{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;width:100%;max-width:360px;text-align:left}
 .banner{background:color-mix(in srgb,var(--warn) 16%,var(--card));border:1px solid var(--warn);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:12px;display:none}
 .pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:99px;color:#fff;font-weight:600}
@@ -44,10 +45,10 @@ h1{font-size:22px;margin:4px 0 2px}
 .item .t{font-size:13px;color:var(--mute)}
 .item .a{font-weight:600;margin:3px 0}
 .item .c{font:13px ui-monospace,Menlo,monospace;color:var(--mute)}
-.item img{width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:8px}
+.item img{width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:8px;cursor:zoom-in}
 .acts{display:flex;gap:8px;margin-top:10px}
 .btn{font:600 14px inherit;font-family:inherit;border:1px solid var(--line);background:none;color:var(--ink);padding:8px 12px;border-radius:9px}
-.btn.p{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.p{background:var(--brand);border-color:var(--brand);color:var(--onb)}
 .btn.d{color:var(--danger)}
 .empty{text-align:center;color:var(--mute);padding:40px 10px}
 #loc{position:absolute;right:12px;bottom:16px;z-index:500;width:48px;height:48px;border-radius:50%;border:0;background:var(--card);box-shadow:0 2px 8px #0004;color:var(--brand)}
@@ -59,7 +60,30 @@ dialog{border:0;border-radius:16px;padding:18px;width:min(92vw,420px);background
 dialog::backdrop{background:#0008}
 dialog label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
 dialog textarea,dialog select{width:100%;font:15px inherit;font-family:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-.leaflet-container{font-family:inherit}
+.leaflet-container{font-family:inherit;background:var(--bg)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--card);color:var(--ink)}
+.leaflet-popup-content a{color:var(--brand)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:14px 0}
+.card h2{font-size:15px;margin:0 0 12px}
+.themes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.th{border:0;background:none;color:var(--ink);font:600 12px inherit;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0}
+.th i{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:24px;font-style:normal;border:3px solid transparent;box-shadow:0 0 0 1px var(--line)}
+.th.on i{border-color:var(--brand)}
+.th small{color:var(--mute);font-weight:400;font-size:11px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:5px 6px 5px 10px;font-size:14px}
+.chip i{width:12px;height:12px;border-radius:50%}
+.chip button{border:0;background:none;color:var(--mute);font-size:18px;line-height:1;padding:0 6px}
+#v-set select{width:100%;font:15px inherit;font-family:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+#viewer{position:fixed;inset:0;background:#000e;z-index:3000;display:none;overflow:auto;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#viewer.on{display:flex}
+#viewer img{margin:auto;max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in}
+#viewer.z img{max-width:none;max-height:none;width:240vw;cursor:zoom-out}
+#vx{position:fixed;top:calc(12px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:0;background:#000a;color:#fff;font-size:20px;z-index:3001}
+html[data-theme=ocean]{--bg:#eaf2fb;--card:#fff;--ink:#0f2238;--mute:#587089;--line:#cfdcec;--brand:#1769d1;--brand2:#0f55ad;--onb:#fff;--warn:#a15c07;--danger:#b91c1c;color-scheme:light}
+html[data-theme=forest]{--bg:#edf3ea;--card:#fff;--ink:#16291b;--mute:#566a5b;--line:#d2dfcd;--brand:#2b7a3d;--brand2:#1f5c2d;--onb:#fff;--warn:#a15c07;--danger:#b91c1c;color-scheme:light}
+html[data-theme=midnight]{--bg:#0a1020;--card:#121a2f;--ink:#e8eefc;--mute:#8d9bb8;--line:#243252;--brand:#6aa8ff;--brand2:#4d8fe8;--onb:#07101f;--warn:#fbbf24;--danger:#f87171;color-scheme:dark}
+html[data-theme=amoled]{--bg:#000;--card:#101010;--ink:#f4f4f4;--mute:#9a9a9a;--line:#262626;--brand:#ffa94d;--brand2:#f08c00;--onb:#1a0f00;--warn:#fbbf24;--danger:#f87171;color-scheme:dark}
 </style>
 </head>
 <body>
@@ -85,12 +109,22 @@ dialog textarea,dialog select{width:100%;font:15px inherit;font-family:inherit;p
   <section class="view" id="v-map"><div id="map"></div>
     <button id="loc" aria-label="ไปตำแหน่งปัจจุบัน"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></button>
   </section>
+  <section class="view" id="v-set">
+    <h1>ตั้งค่า</h1>
+    <div class="card"><h2>ธีมสี</h2><div class="themes" id="themes"></div></div>
+    <div class="card"><h2>หมวดหมู่</h2><div class="chips" id="tagList"></div>
+      <div class="bar"><input id="tn" placeholder="ชื่อหมวดหมู่ใหม่" maxlength="20" aria-label="ชื่อหมวดหมู่ใหม่"><input id="tc" type="color" value="#0891b2" aria-label="สีหมวดหมู่" style="flex:0 0 52px;min-width:0;padding:2px"><button class="btn p" id="ta">เพิ่ม</button></div></div>
+    <div class="card"><h2>รูปแบบแผนที่</h2><select id="tl" aria-label="รูปแบบแผนที่"></select>
+      <p class="sub" style="margin-top:8px">เปลี่ยนแล้วมีผลทันทีในแท็บแผนที่</p></div>
+  </section>
 </main>
 <nav>
   <button data-v="home" class="on"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>บันทึก</button>
   <button data-v="hist"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>ประวัติ</button>
   <button data-v="map"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>แผนที่</button>
+  <button data-v="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>ตั้งค่า</button>
 </nav>
+<div id="viewer"><button id="vx" aria-label="ปิด">✕</button><img alt="รูปถ่ายเต็มหน้าจอ"></div>
 <div id="toast"><span id="tmsg"></span><button id="tact" hidden></button></div>
 
 <dialog id="dlg"><form method="dialog" id="ef">
@@ -98,6 +132,7 @@ dialog textarea,dialog select{width:100%;font:15px inherit;font-family:inherit;p
   <label for="en">โน้ต</label><textarea id="en" rows="3" placeholder="เช่น จอดรถชั้น 3"></textarea>
   <label for="et">หมวดหมู่</label><select id="et"></select>
   <label for="ep">รูปถ่าย</label><input id="ep" type="file" accept="image/*" capture="environment">
+  <label id="rmw" style="display:none"><input type="checkbox" id="rm"> ลบรูปเดิมของรายการนี้</label>
   <div class="acts" style="justify-content:flex-end;margin-top:16px"><button class="btn" value="cancel">ยกเลิก</button><button class="btn p" id="esave" value="ok">บันทึก</button></div>
 </form></dialog>
 
@@ -106,7 +141,11 @@ dialog textarea,dialog select{width:100%;font:15px inherit;font-family:inherit;p
 /* ===== Config ===== */
 // ใส่ URL ของ Backend (Supabase Edge Function / Firebase Function) เพื่อซิงค์ขึ้น Cloud เมื่อออนไลน์
 const SYNC_URL = '';
-const TAGS = {work:['งาน','#2563eb'],travel:['ท่องเที่ยว','#16a34a'],food:['ร้านอาหาร','#ea580c'],other:['อื่นๆ','#7c3aed']};
+const DEF_TAGS={work:['งาน','#2563eb'],travel:['ท่องเที่ยว','#16a34a'],food:['ร้านอาหาร','#ea580c'],other:['อื่นๆ','#7c3aed']};
+const store={get:(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let TAGS=(()=>{const t=store.get('wh_tags',null);if(!t||typeof t!=='object'||!t.other)return DEF_TAGS;
+  const o={};for(const[k,v]of Object.entries(t))if(/^[a-z0-9]+$/i.test(k)&&Array.isArray(v))o[k]=[String(v[0]).slice(0,20),/^#[0-9a-f]{6}$/i.test(v[1])?v[1]:'#888888'];return o.other?o:DEF_TAGS})();
+const tg=k=>TAGS[k]||['ไม่ระบุ','#888888'];
 
 /* ===== Helpers ===== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -170,8 +209,8 @@ function filtered(all){
     (!q||(r.note+' '+r.addr).toLowerCase().includes(q)))}
 async function render(){
   const all=await getAll(),rows=filtered(all);
-  $('#list').innerHTML=rows.length?rows.map(r=>`<article class="item" style="--c:${TAGS[r.tag][1]}">
-    <div class="t">${fmt(r.ts)} <span class="pill" style="background:${TAGS[r.tag][1]}">${TAGS[r.tag][0]}</span>${r.synced?'':' · รอซิงค์'}</div>
+  $('#list').innerHTML=rows.length?rows.map(r=>`<article class="item" style="--c:${tg(r.tag)[1]}">
+    <div class="t">${fmt(r.ts)} <span class="pill" style="background:${tg(r.tag)[1]}">${tg(r.tag)[0]}</span>${r.synced?'':' · รอซิงค์'}</div>
     <div class="a">${esc(r.addr)||'ยังไม่มีชื่อสถานที่ (จะดึงอัตโนมัติเมื่อออนไลน์)'}</div>
     <div class="c">${r.lat.toFixed(6)}, ${r.lng.toFixed(6)} · ±${r.acc} ม.</div>
     ${r.note?`<div style="margin-top:6px">${esc(r.note)}</div>`:''}
@@ -181,36 +220,61 @@ async function render(){
     :'<div class="empty">ยังไม่มีรายการ — กลับไปแท็บ “บันทึก” แล้วแตะปุ่มใหญ่ได้เลย</div>';
   if(map)drawMarkers(all)}
 $('#list').onclick=async e=>{
+  const I=e.target.closest('.item img');if(I)return openViewer(I.src);
   const E=e.target.closest('[data-e]'),D=e.target.closest('[data-d]');
   if(E)edit(E.dataset.e);
   if(D&&confirm('ลบรายการนี้?')){await del(D.dataset.d);render()}};
 ['#q','#fd','#ft'].forEach(s=>$(s).addEventListener('input',render));
-$('#ft').innerHTML='<option value="all">ทุกหมวด</option>'+Object.entries(TAGS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('');
-$('#et').innerHTML=Object.entries(TAGS).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('');
+function fillTags(){
+  const o=Object.entries(TAGS).map(([k,v])=>`<option value="${esc(k)}">${esc(v[0])}</option>`).join('');
+  const f=$('#ft'),e=$('#et'),fv=f.value,ev=e.value;
+  f.innerHTML='<option value="all">ทุกหมวด</option>'+o;e.innerHTML=o;
+  f.value=(fv==='all'||TAGS[fv])?fv:'all';if(TAGS[ev])e.value=ev}
+fillTags();
+
+/* ===== Fullscreen photo viewer ===== */
+const vw=$('#viewer');
+function openViewer(src){vw.querySelector('img').src=src;vw.classList.remove('z');vw.classList.add('on')}
+const closeViewer=()=>vw.classList.remove('on');
+vw.onclick=e=>{if(e.target.tagName==='IMG')vw.classList.toggle('z');else closeViewer()};
+$('#vx').onclick=closeViewer;
+addEventListener('keydown',e=>{if(e.key==='Escape')closeViewer()});
 
 /* ===== Edit dialog ===== */
 let editing=null;
 async function edit(id){editing=(await getAll()).find(r=>r.id===id);if(!editing)return;
-  $('#en').value=editing.note;$('#et').value=editing.tag;$('#ep').value='';$('#dlg').showModal()}
+  $('#en').value=editing.note;$('#et').value=TAGS[editing.tag]?editing.tag:'other';$('#ep').value='';$('#rm').checked=false;$('#rmw').style.display=editing.photo?'block':'none';$('#dlg').showModal()}
 const shrink=f=>new Promise(ok=>{const i=new Image();i.onload=()=>{const s=Math.min(1,900/Math.max(i.width,i.height)),c=document.createElement('canvas');
   c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.7))};i.src=URL.createObjectURL(f)});
 $('#ef').onsubmit=async e=>{
   if(e.submitter?.value!=='ok'||!editing)return;
   editing.note=$('#en').value.trim();editing.tag=$('#et').value;editing.synced=false;
+  if($('#rm').checked)editing.photo='';
   const f=$('#ep').files[0];if(f)editing.photo=await shrink(f);
   await put(editing);render();toast('แก้ไขเรียบร้อยแล้ว');sync()};
 
 /* ===== Map (Leaflet + OpenStreetMap) ===== */
-let map,layer,me;
+let map,layer,me,tileL;
+const TILES={
+ osm:{n:'OpenStreetMap (มาตรฐาน)',u:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',z:19,a:'© OpenStreetMap'},
+ hot:{n:'OSM ฮิวแมนิทาเรียน (ชัดเจน)',u:'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',z:19,a:'© OpenStreetMap, HOT'},
+ light:{n:'CARTO สว่าง (มินิมอล)',u:'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',z:20,a:'© OpenStreetMap © CARTO'},
+ dark:{n:'CARTO มืด (Dark)',u:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',z:20,a:'© OpenStreetMap © CARTO'},
+ topo:{n:'OpenTopoMap (ภูมิประเทศ)',u:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',z:17,a:'© OpenStreetMap, SRTM | © OpenTopoMap'},
+ sat:{n:'ดาวเทียม (Esri)',u:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',z:19,a:'Tiles © Esri'}
+};
+let tileKey=store.get('wh_tile','osm');if(!TILES[tileKey])tileKey='osm';
+function setTile(){if(!map)return;if(tileL)tileL.remove();const t=TILES[tileKey];
+  tileL=L.tileLayer(t.u,{maxZoom:t.z,subdomains:'abc',attribution:t.a,detectRetina:true}).addTo(map);tileL.bringToBack()}
 function initMap(){
   if(map)return;
   map=L.map('map',{zoomControl:false}).setView([13.7563,100.5018],12);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  setTile();
   layer=L.layerGroup().addTo(map);render()}
 async function drawMarkers(all){
   layer.clearLayers();const pts=[];
   all.forEach(r=>{pts.push([r.lat,r.lng]);
-    L.circleMarker([r.lat,r.lng],{radius:10,color:'#fff',weight:2,fillColor:TAGS[r.tag][1],fillOpacity:1}).addTo(layer)
+    L.circleMarker([r.lat,r.lng],{radius:10,color:'#fff',weight:2,fillColor:tg(r.tag)[1],fillOpacity:1}).addTo(layer)
      .bindPopup(`<b>${fmt(r.ts)}</b><br>${esc(r.note)||'<i>ไม่มีโน้ต</i>'}<br><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}">นำทาง</a>`)});
   if(pts.length&&!map._fitted){map.fitBounds(pts,{padding:[40,40],maxZoom:16});map._fitted=1}}
 $('#loc').onclick=async()=>{try{const p=await getPos(),ll=[p.coords.latitude,p.coords.longitude];
@@ -224,11 +288,45 @@ const xe=s=>esc(s);
 document.addEventListener('click',async e=>{const x=e.target.dataset?.x;if(!x)return;
   const rows=filtered(await getAll());if(!rows.length)return toast('ไม่มีข้อมูลให้ส่งออก');
   if(x==='csv')dl('checkins.csv','text/csv','\ufeff'+['เวลา,lat,lng,ความแม่นยำ(ม.),หมวด,โน้ต,ที่อยู่'].concat(rows.map(r=>
-    [new Date(r.ts).toISOString(),r.lat,r.lng,r.acc,TAGS[r.tag][0],r.note,r.addr].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))).join('\n'));
+    [new Date(r.ts).toISOString(),r.lat,r.lng,r.acc,tg(r.tag)[0],r.note,r.addr].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))).join('\n'));
   if(x==='kml')dl('checkins.kml','application/vnd.google-earth.kml+xml',`<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document>${rows.map(r=>
     `<Placemark><name>${xe(fmt(r.ts))}</name><description>${xe(r.note)}</description><TimeStamp><when>${new Date(r.ts).toISOString()}</when></TimeStamp><Point><coordinates>${r.lng},${r.lat},0</coordinates></Point></Placemark>`).join('')}</Document></kml>`);
   if(x==='gpx')dl('checkins.gpx','application/gpx+xml',`<?xml version="1.0" encoding="UTF-8"?><gpx version="1.1" creator="checkin" xmlns="http://www.topografix.com/GPX/1/1">${rows.map(r=>
     `<wpt lat="${r.lat}" lon="${r.lng}"><time>${new Date(r.ts).toISOString()}</time><name>${xe(fmt(r.ts))}</name><desc>${xe(r.note)}</desc></wpt>`).join('')}</gpx>`)});
+
+/* ===== Settings ===== */
+const THEMES={
+ coral:{n:'โคราล',m:'อัตโนมัติ',i:'🌗',bg:'#f3f1ec',br:'#d9482f'},
+ ocean:{n:'ทะเล',m:'สว่าง',i:'🌊',bg:'#eaf2fb',br:'#1769d1'},
+ forest:{n:'ป่า',m:'สว่าง',i:'🌿',bg:'#edf3ea',br:'#2b7a3d'},
+ midnight:{n:'เที่ยงคืน',m:'มืด',i:'🌙',bg:'#0a1020',br:'#6aa8ff'},
+ amoled:{n:'ดำสนิท',m:'มืด',i:'🌑',bg:'#000000',br:'#ffa94d'}
+};
+let themeKey=store.get('wh_theme','coral');if(!THEMES[themeKey])themeKey='coral';
+function applyTheme(k){themeKey=k;document.documentElement.dataset.theme=k;store.set('wh_theme',k);
+  $$('.th').forEach(b=>b.classList.toggle('on',b.dataset.t===k));
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=getComputedStyle(document.body).backgroundColor}
+$('#themes').innerHTML=Object.entries(THEMES).map(([k,t])=>`<button class="th" data-t="${k}" aria-label="ธีม${t.n} (${t.m})"><i style="background:linear-gradient(135deg,${t.bg} 50%,${t.br} 50%)">${t.i}</i>${t.n}<small>${t.m}</small></button>`).join('');
+$('#themes').onclick=e=>{const b=e.target.closest('.th');if(b)applyTheme(b.dataset.t)};
+applyTheme(themeKey);
+
+$('#tl').innerHTML=Object.entries(TILES).map(([k,t])=>`<option value="${k}">${t.n}</option>`).join('');
+$('#tl').value=tileKey;
+$('#tl').onchange=()=>{tileKey=$('#tl').value;store.set('wh_tile',tileKey);setTile()};
+
+function renderTagList(){$('#tagList').innerHTML=Object.entries(TAGS).map(([k,v])=>
+  `<span class="chip"><i style="background:${v[1]}"></i>${esc(v[0])}${k==='other'?'':`<button data-dt="${k}" aria-label="ลบหมวด ${esc(v[0])}">×</button>`}</span>`).join('')}
+function saveTags(){store.set('wh_tags',TAGS);fillTags();renderTagList();render()}
+$('#ta').onclick=()=>{
+  const n=$('#tn').value.trim().slice(0,20);if(!n)return toast('กรุณาใส่ชื่อหมวดหมู่');
+  if(Object.values(TAGS).some(v=>v[0].toLowerCase()===n.toLowerCase()))return toast('มีหมวดหมู่นี้แล้ว');
+  TAGS['c'+Date.now().toString(36)]=[n,$('#tc').value];$('#tn').value='';saveTags();toast('เพิ่มหมวดหมู่แล้ว')};
+$('#tn').onkeydown=e=>{if(e.key==='Enter')$('#ta').click()};
+$('#tagList').onclick=async e=>{const b=e.target.closest('[data-dt]');if(!b)return;const k=b.dataset.dt;
+  if(!confirm(`ลบหมวด “${TAGS[k][0]}” ? รายการเดิมในหมวดนี้จะย้ายไป “${TAGS.other[0]}”`))return;
+  for(const r of await getAll())if(r.tag===k){r.tag='other';r.synced=false;await put(r)}
+  delete TAGS[k];saveTags();toast('ลบหมวดหมู่แล้ว')};
+renderTagList();
 
 /* ===== Navigation / boot ===== */
 $$('nav button').forEach(b=>b.onclick=()=>{
